@@ -5,8 +5,9 @@ from discord.ext import commands
 from discord import app_commands
 from bot.config import SERVER_ID
 from bot.services.update_user import update_user
+from bot.utils import guild_decorator
 
-@app_commands.guilds(discord.Object(id=SERVER_ID))  # remove when you want to make the command global
+@guild_decorator
 class Listeners(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

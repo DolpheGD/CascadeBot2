@@ -3,9 +3,10 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from bot.config import SERVER_ID
+from bot.utils import guild_decorator
 from bot.utils.embedder import classify_user_with_output, classify_with_output
 
-@app_commands.guilds(discord.Object(id=SERVER_ID))  # remove when you want to make the command global
+@guild_decorator
 class Classify(commands.GroupCog, name="classify"):
     def __init__(self, bot):
         self.bot = bot

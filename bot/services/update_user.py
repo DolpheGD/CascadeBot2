@@ -52,6 +52,12 @@ def update_user(discord_id: str, message_id: str, content: str, timestamp: datet
             key=lambda x: x.danger_score,
             reverse=True
         )
+
+        # if exact message is repeated, it is not counted
+        top_message_content = [message.content for message in top_messages]
+        if new_message.content in top_message_content:
+            return
+        
         
         # if new top, then update the message list
         changed = False

@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from bot.services.get_users import get_ten_higher_danger
+from bot.utils import guild_decorator
 from bot.utils.embedder import get_danger_color, leaderboard_danger_output
 
 from bot.config import SERVER_ID
@@ -14,7 +15,7 @@ class UserUtils(commands.Cog):
 
     # COMMAND: /help
     # This command lists all available bot commands to the user.
-    @app_commands.guilds(discord.Object(id=SERVER_ID))  # remove when you want to make the command global
+    @guild_decorator
     @app_commands.command(
         name = "help",
         description = "Lists all bot commands"
@@ -33,7 +34,7 @@ class UserUtils(commands.Cog):
 
     # COMMAND: /leaderboard
     # FIX THIS LATER (MOVE)
-    @app_commands.guilds(discord.Object(id=SERVER_ID))  # remove when you want to make the command global
+    @guild_decorator
     @app_commands.command(
         name = "leaderboard",
         description = "Lists the rankings of the most dangerous users"
