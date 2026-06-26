@@ -7,20 +7,19 @@ from discord import app_commands
 from bot.config import SERVER_ID
 from bot.database.models.user_model import UserProfile
 from bot.database.session import SessionLocal
-from bot.utils import guild_decorator
+from bot.utils.guild_decorator import guild_decorator
 
+
+@guild_decorator
 class AdminUtils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-
 
     # TODO: MOVE THIS LOGIC LATER
 
 
     # COMMAND: /clear
     # This command clears database history from a user
-    @guild_decorator
     @app_commands.command(
         name = "clear",
         description = "Clears database history from a user"

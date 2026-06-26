@@ -4,18 +4,19 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from bot.services.get_users import get_ten_higher_danger
-from bot.utils import guild_decorator
+from bot.utils.guild_decorator import guild_decorator
 from bot.utils.embedder import get_danger_color, leaderboard_danger_output
 
 from bot.config import SERVER_ID
 
+
+@guild_decorator
 class UserUtils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     # COMMAND: /help
     # This command lists all available bot commands to the user.
-    @guild_decorator
     @app_commands.command(
         name = "help",
         description = "Lists all bot commands"
@@ -34,7 +35,6 @@ class UserUtils(commands.Cog):
 
     # COMMAND: /leaderboard
     # FIX THIS LATER (MOVE)
-    @guild_decorator
     @app_commands.command(
         name = "leaderboard",
         description = "Lists the rankings of the most dangerous users"

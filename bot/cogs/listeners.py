@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord import app_commands
 from bot.config import SERVER_ID
 from bot.services.update_user import update_user
-from bot.utils import guild_decorator
+from bot.utils.guild_decorator import guild_decorator
 
 @guild_decorator
 class Listeners(commands.Cog):
