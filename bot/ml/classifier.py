@@ -1,7 +1,8 @@
 # classifies text using a pre-trained model from Hugging Face. The model is loaded using the transformers library and the classify_message function takes
 # a string input and returns a dictionary of classification results with their corresponding probabilities.
+
 from bot.config import HF_TOKEN
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
 import torch 
 
 CLASS_TERMS = {
@@ -27,8 +28,14 @@ model = AutoModelForSequenceClassification.from_pretrained(
     token=HF_TOKEN
 )
 
+toxic_model = pipeline(
+    "text-classification",
+    model="unitary/toxic-bert",
+    token=HF_TOKEN
+)
 
-def classify_message(text):
+
+def classify_general(text):
     inputs = tokenizer(text, return_tensors="pt")
 
     with torch.no_grad(): # no training, just inference
@@ -43,9 +50,46 @@ def classify_message(text):
     return dict(sorted(results.items(), key=lambda item: item[1], reverse=True))
 
 
-def classify_with_output(message):
-    results = classify_message(message)
-    output = ""
+def classify_toxicity(message):
+    results = toxic_model(message)
+    return results[0]['score']
+
+
+def classify_danger_level(message):
+    """
+    danger levels
+    """
+    results = classify_general(message)
+    toxicity_score = classify_toxicity(message)
+
+    sexual = min(
+        results["S"] + (results["S3"] * 2.0),
+        1.0
+    )
+
+    hate = min(
+        results["H"] * 0.25 +
+        results["HR"] * 0.20 +
+        results["V"] * 0.20 +
+        results["H2"] * 0.35 +
+        results["V2"] * 0.30 +
+        toxicity_score * 0.20,
+        1.0
+    )
+
+    concern = min(
+        results["SH"] + (toxicity_score * 0.10),
+        1.0
+    )
+
+    danger = sexual * 0.50 + hate * 0.90 + concern
     for label, prob in results.items():
-        output += f"{CLASS_TERMS[label]}: {prob:.2%}\n"
-    return output
+        if label not in ["OK"]:
+            if prob > 0.25: #if specifically high in any category, add danger
+                danger += prob / 2
+
+    if results["S3"] > 0.25:
+        danger += 0.40
+
+
+    return {"Hate": hate, "Sexual": sexual, "Concern": concern, "Danger": danger}
