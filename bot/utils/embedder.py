@@ -27,54 +27,72 @@ def classify_with_output(message):
 def classify_user_with_output(user: discord.Member, verbose = False):
     top_ten, avg_danger = get_top_ten_and_avg(user.id)
     color = get_danger_color(avg_danger)
+    is_no_data = False
+    
+    if len(top_ten) <= 0:
+        desc = "*[No Data]*"
+        is_no_data = True
+    else:
+        desc = f"Danger Score: {avg_danger:.2%}"
 
     
     embed = discord.Embed(
        title=f"**⚠️ {user.display_name}'s Danger ⚠️**",
-       color=color
+       color=color,
+       description=desc
     )
-
-    if len(top_ten) <= 0:
-        value_output = "*[No Data]*"
-        message_output = "*[No Data]*"
-    else:
-        value_output = f'{avg_danger:.2%}'
-        message_output = ""
-        for num, message in enumerate(top_ten, start=1):
-            output_text = ""
-            if len(message.content) >= 50:
-                output_text = message.content[:50] + '...'
-                if verbose:
-                    output_text += f' ({len(message.content) - 50} more chars)'
-            else:
-                output_text = message.content
-
-            
-            if verbose:
-                message_output += f'{num}. "{output_text}" (Danger: {message.danger_score:.2%}) (ID: {message.message_id})\n'
-            else:
-                message_output += f'{num}. "{output_text}"\n'
-
+    
     if user.avatar:
         embed.set_thumbnail(url=user.avatar.url)
-    embed.add_field(name='Danger Score', value=value_output)
-    embed.add_field(name='Messages', value=message_output, inline=False)
+    
+    if is_no_data:
+        return embed
+    
+
+    for num, message in enumerate(top_ten, start=1):
+        name_text = f'{num}. '
+        if len(message.content) >= 50:
+            name_text += f'{message.content[:50]} ...'
+            if verbose:
+                name_text += f' ({len(message.content) - 50} more)'
+        else:
+            name_text += message.content
+
+        value_text = ""
+        if verbose:
+            value_text += f'(Danger: {message.danger_score:.2%}) (Hate: {message.hate_score:.2%}) (Sexual: {message.sexual_score:.2%}) (Sexual: {message.concern_score:.2%}) (ID: {message.message_id})\n'
+
+        embed.add_field(name=name_text, value=value_text, inline=False)
 
     return embed
 
 
+def leaderboard_danger_output(users):
 
-#FIX LATER
-def leaderboard_danger_output(ctx):
-    users = get_ten_higher_danger()
-
+    color = get_danger_color(users[0].danger_score)
     embed = discord.Embed(
-        title="Danger Leaderboard"
+        title="🏆 Danger Leaderboard 🏆",
+        color=color
     )
 
+    if users[0].avatar_url:
+        embed.set_thumbnail(url=users[0].avatar_url)
+
+
+    for i, user in enumerate(users, start=1):
+        if user.display_name:
+            name = user.display_name
+        else:
+            name = 'Unkonwn User'
+
+        embed.add_field(
+            name=f"{i}. {name} ({user.danger_score:.2%})\n",
+            value="",
+            inline=False
+        )
+
 
     return embed
-
 
 
 
@@ -82,18 +100,21 @@ def leaderboard_danger_output(ctx):
 
 
 def get_danger_color(danger):
-    if danger > 1.0:
+    if danger > 1.2:
+        color = discord.Color.dark_purple()
+    elif danger > 1.0:
         color = 0 #black
-    elif danger > 0.9:
+    elif danger > 0.85:
         color = discord.Color.dark_red()
-    elif danger > 0.8:
+    elif danger > 0.7:
         color = discord.Color.red()
-    elif danger > 0.65:
+    elif danger > 0.55:
         color = discord.Color.orange()
-    elif danger > 0.5:
+    elif danger > 0.40:
         color = discord.Color.yellow()
-    else:
+    elif danger > 0.20:
         color = discord.Color.green()
-
+    else:
+        color = discord.Color.blue()
     return color
     

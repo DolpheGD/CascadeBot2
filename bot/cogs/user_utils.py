@@ -34,6 +34,7 @@ class UserUtils(commands.Cog):
 
 
     # COMMAND: /leaderboard
+    # TODO: fix
     # FIX THIS LATER (MOVE)
     @app_commands.command(
         name = "leaderboard",
@@ -48,37 +49,7 @@ class UserUtils(commands.Cog):
             )
             return
 
-        color = get_danger_color(users[0].danger_score)
-        embed = discord.Embed(
-            title="🏆 Danger Leaderboard 🏆",
-            color=color
-        )
-
-        if users[0].avatar_url:
-            embed.set_thumbnail(url=users[0].avatar_url)
-
-
-        for i, user in enumerate(users, start=1):
-            if user.display_name:
-                name = user.display_name
-            else:
-                try:
-                    member = await ctx.guild.fetch_member(
-                        int(user.discord_id)
-                    )
-                    name = member.display_name
-                except discord.NotFound:
-                    name = "Unknown User"
-
-
-            embed.add_field(
-                name=f"{i}. {name} ({user.danger_score:.2%})\n",
-                value="",
-                inline=False
-            )
-        
-
-        await ctx.response.send_message(embed=embed)
+        await ctx.response.send_message(embed=leaderboard_danger_output(users))
 
 
 
