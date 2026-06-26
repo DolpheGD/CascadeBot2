@@ -12,6 +12,12 @@ class UserProfile(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     discord_id: Mapped[str] = mapped_column(String, unique=True, index=True)
 
+    username: Mapped[str] = mapped_column(String, default="")
+
+    display_name: Mapped[str] = mapped_column(String, default="")
+
+    avatar_url: Mapped[str] = mapped_column(String, default="")
+
     danger_score: Mapped[float] = mapped_column(Float, default=0.0)
 
     total_messages: Mapped[int] = mapped_column(Integer, default=0)

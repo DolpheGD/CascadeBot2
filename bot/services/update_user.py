@@ -16,15 +16,21 @@ def get_or_create_user(db, discord_id: str):
     return user
 
 
-def update_user(discord_id: str, message_id: str, content: str, timestamp: datetime):
+def update_user(discord_id: str, message_id: str, content: str, timestamp: datetime, username: str, display_name: str, avatar_url: str):
     """
     updates the users total messages, and top 10 most dangerous messages list
+    also updates any other cache information about the user
     """
     db = SessionLocal()
 
     try:
         user = get_or_create_user(db, discord_id)
+
+        #update cached info
         user.total_messages += 1
+        user.username = username
+        user.display_name = display_name
+        user.avatar_url = avatar_url
 
         # classify message
         scores = classify_danger_level(content)
@@ -35,7 +41,8 @@ def update_user(discord_id: str, message_id: str, content: str, timestamp: datet
             danger_score=scores["Danger"],
             sexual_score=scores["Sexual"],
             hate_score=scores["Hate"],
-            concern_score=scores["Concern"]
+            concern_score=scores["Concern"],
+            timestamp=timestamp
         )
 
 
@@ -74,25 +81,3 @@ def update_user(discord_id: str, message_id: str, content: str, timestamp: datet
 
     finally:
         db.close()
-
-
-def get_top_ten_and_avg(discord_id: int):
-    """
-    returns top ten danger and avg danger
-    top ten danger is a list of message objects (I think)
-    """
-    db = SessionLocal()
-    try:
-        user = get_or_create_user(db, discord_id)
-
-        top_messages = sorted(
-            user.messages,
-            key=lambda x: x.danger_score,
-            reverse=True
-        )
-        danger_avg = user.danger_score
-
-    finally:
-        db.close()
-    
-    return top_messages, danger_avg

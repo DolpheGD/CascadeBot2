@@ -23,7 +23,7 @@ class Classify(commands.GroupCog, name="classify"):
     @app_commands.describe(
         text = "Text to classify"
     )
-    async def classify_text(self, ctx, text: str):
+    async def classify_text(self, ctx: discord.Interaction, text: str):
         await ctx.response.send_message(embed=classify_with_output(text))
     
 
@@ -38,7 +38,7 @@ class Classify(commands.GroupCog, name="classify"):
     @app_commands.describe(
         message_id = "The ID of the message to classify"
     )
-    async def classify_id(self, ctx, message_id: str):
+    async def classify_id(self, ctx: discord.Interaction, message_id: str):
         try:
             message = await ctx.channel.fetch_message(message_id)
             await ctx.response.send_message(embed=classify_with_output(message.content))
@@ -60,7 +60,7 @@ class Classify(commands.GroupCog, name="classify"):
         user = "The user to classify",
         verbose = "Show detailed message information"
     )
-    async def classify_user(self, ctx, user: discord.Member, verbose: bool = False):
+    async def classify_user(self, ctx: discord.Interaction, user: discord.Member, verbose: bool = False):
         await ctx.response.send_message(embed=classify_user_with_output(user, verbose))
 
 

@@ -63,7 +63,7 @@ def classify_danger_level(message):
     toxicity_score = classify_toxicity(message)
 
     sexual = min(
-        results["S"] + (results["S3"] * 2.0),
+        results["S"] + (results["S3"] * 3.0),
         1.0
     )
 
@@ -82,14 +82,18 @@ def classify_danger_level(message):
         1.0
     )
 
-    danger = sexual * 0.60 + hate * 0.90 + concern * 0.5
+    danger = sexual * 0.7 + hate * 0.8 + concern * 0.5
     for label, prob in results.items():
-        if label not in ["OK"]:
-            if prob > 0.25: #if specifically high in any category, add danger
-                danger += prob / 2
+        if label not in ["OK", "H"]:
+            if prob > 0.5: #if specifically high in any category besides hate, add danger
+                danger += prob * 1.5
+            elif prob > 0.35:
+                danger += prob
+            elif prob > 0.2:
+                danger += prob / 2.0
 
     if results["S3"] > 0.25:
-        danger += 0.40
+        danger += results["S3"] * 1.5
 
 
     return {"Hate": hate, "Sexual": sexual, "Concern": concern, "Danger": danger}

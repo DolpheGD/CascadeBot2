@@ -1,6 +1,6 @@
 import discord
 from bot.ml.classifier import classify_danger_level
-from bot.services.update_user import get_top_ten_and_avg
+from bot.services.get_users import get_top_ten_and_avg, get_ten_higher_danger
 
 def classify_with_output(message):
     """
@@ -23,6 +23,7 @@ def classify_with_output(message):
     return embed
 
 
+
 def classify_user_with_output(user: discord.Member, verbose = False):
     top_ten, avg_danger = get_top_ten_and_avg(user.id)
     color = get_danger_color(avg_danger)
@@ -39,17 +40,45 @@ def classify_user_with_output(user: discord.Member, verbose = False):
     else:
         value_output = f'{avg_danger:.2%}'
         message_output = ""
-        for num, message in enumerate(top_ten):
-            if verbose:
-                message_output += f'{num}. "{message.content}" (Danger: {message.danger_score:.2%}) (ID: {message.message_id})\n'
+        for num, message in enumerate(top_ten, start=1):
+            output_text = ""
+            if len(message.content) >= 50:
+                output_text = message.content[:50] + '...'
+                if verbose:
+                    output_text += f' ({len(message.content) - 50} more chars)'
             else:
-                message_output += f'{num}. "{message.content}"\n'
+                output_text = message.content
 
-    embed.set_thumbnail(url=user.avatar.url)
+            
+            if verbose:
+                message_output += f'{num}. "{output_text}" (Danger: {message.danger_score:.2%}) (ID: {message.message_id})\n'
+            else:
+                message_output += f'{num}. "{output_text}"\n'
+
+    if user.avatar:
+        embed.set_thumbnail(url=user.avatar.url)
     embed.add_field(name='Danger Score', value=value_output)
     embed.add_field(name='Messages', value=message_output, inline=False)
 
     return embed
+
+
+
+#FIX LATER
+def leaderboard_danger_output(ctx):
+    users = get_ten_higher_danger()
+
+    embed = discord.Embed(
+        title="Danger Leaderboard"
+    )
+
+
+    return embed
+
+
+
+
+
 
 
 def get_danger_color(danger):

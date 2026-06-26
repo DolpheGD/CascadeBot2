@@ -17,13 +17,19 @@ class Listeners(commands.Cog):
     async def on_message(self, message):
         if message.author == self.bot.user:
             return
-        
+        if message.author.bot:
+            return
+    
         user_id = str(message.author.id)
         message_id = str(message.id)
         content = str(message.clean_content)
         message_time = message.created_at
 
-        update_user(user_id, message_id, content, message_time)
+        username = message.author.name
+        display_name = message.author.display_name
+        avatar_url = message.author.avatar.url
+
+        update_user(user_id, message_id, content, message_time, username, display_name, avatar_url)
         
 
 
